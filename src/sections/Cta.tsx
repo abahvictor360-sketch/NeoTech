@@ -7,7 +7,7 @@ export function Cta({ onWatch }: { onWatch: () => void }) {
       <div className="cta__card">
         <img src="/images/green-vr.webp" alt="" loading="lazy" />
         <h2 className="h2 cta__title">Dive into the<br />Future</h2>
-        <LiquidGlass as="button" className="cta__play" aria-label="Play showreel" onClick={onWatch}>
+        <LiquidGlass as="button" refract className="cta__play" aria-label="Play showreel" onClick={onWatch}>
           <Play width={18} height={18} />
         </LiquidGlass>
         <p className="cta__text">

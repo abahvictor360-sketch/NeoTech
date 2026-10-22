@@ -11,9 +11,13 @@ export function Hero() {
   // Parallax the helmet as the hero scrolls away.
   useEffect(() => {
     let raf = 0
+    let last = -1
     const tick = () => {
       const y = Math.min(scrollState.y, 900)
-      if (imgRef.current) imgRef.current.style.transform = `translate3d(0, ${y * 0.18}px, 0) scale(${1 + y * 0.0002})`
+      if (y !== last && imgRef.current) {
+        imgRef.current.style.transform = `translate3d(0, ${y * 0.18}px, 0) scale(${1 + y * 0.0002})`
+        last = y
+      }
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
@@ -45,7 +49,7 @@ export function Hero() {
 
         <div className="hero__visual">
           <img ref={imgRef} src="/images/hero-helmet.webp" alt="Person wearing a white NeoTech VR headset" width={736} height={672} fetchPriority="high" />
-          <LiquidGlass tone="light" className="hero__stat">
+          <LiquidGlass tone="light" refract className="hero__stat">
             <strong>47.2<small>%</small></strong>
             <span>Reality</span>
           </LiquidGlass>
@@ -62,7 +66,7 @@ export function Hero() {
             </div>
           </div>
           <div className="hero__blurb" data-reveal>
-            <LiquidGlass tone="light" className="badge-round">8g</LiquidGlass>
+            <LiquidGlass tone="light" refract className="badge-round">8g</LiquidGlass>
             <p>In this futuristic realm, users can explore hyper-realistic virtual environments, interact with AI-driven avatars.</p>
           </div>
         </div>

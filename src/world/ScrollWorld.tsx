@@ -1,12 +1,13 @@
-import { Suspense, useMemo, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Float, Lightformer, MeshTransmissionMaterial, useFBO, useTexture } from '@react-three/drei'
+import { Environment, Float, Lightformer, MeshTransmissionMaterial, PerformanceMonitor, useFBO, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { scrollState } from '../lib/scroll'
 
 const WORLD_DEPTH = 90
 const BG = '#070709'
 const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 768
+const isBelowDesktop = typeof window !== 'undefined' && window.innerWidth < 1100
 
 /** Camera rig: flies forward through the world as the page scrolls, with pointer parallax. */
 function Rig() {
@@ -114,7 +115,7 @@ function Geometry({ kind }: { kind: ShardDef['geo'] }) {
 function GlassShards() {
   const group = useRef<THREE.Group>(null)
   const refs = useRef<(THREE.Mesh | null)[]>([])
-  const buffer = useFBO(isSmallScreen ? 256 : 512, isSmallScreen ? 256 : 512)
+  const buffer = useFBO(isSmallScreen ? 256 : 384, isSmallScreen ? 256 : 384)
   useFrame((state, dt) => {
     const spin = 0.2 + Math.min(Math.abs(scrollState.velocity), 80) * 0.02
     refs.current.forEach((m, i) => {
@@ -137,6 +138,7 @@ function GlassShards() {
             <Geometry kind={s.geo} />
             <MeshTransmissionMaterial
               buffer={buffer.texture}
+              samples={isSmallScreen ? 3 : 5}
               transmission={1}
               thickness={1.2}
               roughness={0.04}
@@ -172,7 +174,7 @@ function FlyingCar() {
     ref.current.position.x = THREE.MathUtils.lerp(-14, 14, local)
     ref.current.position.y = -1.6 + Math.sin(state.clock.elapsedTime * 1.6) * 0.12
     ref.current.rotation.z = Math.sin(state.clock.elapsedTime) * 0.03
-    ;(ref.current.material as THREE.MeshBasicMaterial).opacity = Math.sin(local * Math.PI) * 0.9
+    ;(ref.current.material as THREE.MeshBasicMaterial).opacity = Math.sin(local * Math.PI) * (isBelowDesktop ? 0.4 : 0.9)
   })
   return (
     <mesh ref={ref} position={[0, -1.6, -44]}>
@@ -194,14 +196,40 @@ function Lights() {
   )
 }
 
+/** True once the page has scrolled far enough that the world is visible below the hero. */
+function useWorldVisible() {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const hero = document.getElementById('home')
+    const check = () => setVisible(!hero || window.scrollY + window.innerHeight > hero.offsetHeight + 1)
+    check()
+    window.addEventListener('scroll', check, { passive: true })
+    window.addEventListener('resize', check)
+    return () => {
+      window.removeEventListener('scroll', check)
+      window.removeEventListener('resize', check)
+    }
+  }, [])
+  return visible
+}
+
+const MAX_DPR = isSmallScreen ? 1.25 : 1.5
+
 export default function ScrollWorld() {
+  const visible = useWorldVisible()
+  const [dpr, setDpr] = useState(MAX_DPR)
   return (
     <div className="world" aria-hidden="true">
       <Canvas
-        dpr={[1, isSmallScreen ? 1.25 : 1.75]}
+        dpr={dpr}
+        frameloop={visible ? 'always' : 'never'}
         camera={{ position: [0, 0, 6], fov: 55, near: 0.1, far: 120 }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        gl={{ antialias: !isSmallScreen, powerPreference: 'high-performance' }}
       >
+        <PerformanceMonitor
+          onDecline={() => setDpr((d) => Math.max(0.75, d - 0.25))}
+          onIncline={() => setDpr((d) => Math.min(MAX_DPR, d + 0.25))}
+        />
         <color attach="background" args={[BG]} />
         <fog attach="fog" args={[BG, 10, 42]} />
         <Rig />

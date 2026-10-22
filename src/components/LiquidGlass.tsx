@@ -3,6 +3,8 @@ import { useCallback, type ElementType, type ComponentPropsWithoutRef, type Poin
 type Props<T extends ElementType> = {
   as?: T
   tone?: 'dark' | 'light'
+  /** Warp the backdrop through the SVG filter. Costly: use on small elements only. */
+  refract?: boolean
 } & ComponentPropsWithoutRef<T>
 
 /**
@@ -13,6 +15,7 @@ type Props<T extends ElementType> = {
 export function LiquidGlass<T extends ElementType = 'div'>({
   as,
   tone = 'dark',
+  refract = false,
   className = '',
   onPointerMove,
   ...rest
@@ -27,7 +30,7 @@ export function LiquidGlass<T extends ElementType = 'div'>({
     },
     [onPointerMove],
   )
-  return <Tag className={`lg lg--${tone} ${className}`} onPointerMove={handleMove} {...rest} />
+  return <Tag className={`lg lg--${tone} ${refract ? 'lg--refract' : ''} ${className}`} onPointerMove={handleMove} {...rest} />
 }
 
 /** SVG filter used for refraction; rendered once at the app root. */

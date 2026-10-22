@@ -25,8 +25,8 @@ export function Services() {
       <div className="section-head">
         <h2 className="h2" data-reveal>Our Service</h2>
         <div className="arrows">
-          <LiquidGlass as="button" className="arrow" aria-label="Previous services" onClick={() => slide(-1)}><ArrowLeft width={16} height={16} /></LiquidGlass>
-          <LiquidGlass as="button" className="arrow" aria-label="Next services" onClick={() => slide(1)}><ArrowRight width={16} height={16} /></LiquidGlass>
+          <LiquidGlass as="button" refract className="arrow" aria-label="Previous services" onClick={() => slide(-1)}><ArrowLeft width={16} height={16} /></LiquidGlass>
+          <LiquidGlass as="button" refract className="arrow" aria-label="Next services" onClick={() => slide(1)}><ArrowRight width={16} height={16} /></LiquidGlass>
         </div>
       </div>
       <div className="services__track" ref={track}>

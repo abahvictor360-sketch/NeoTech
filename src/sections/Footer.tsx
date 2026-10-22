@@ -40,7 +40,7 @@ export function Footer() {
             <p>Dive into a world where technology and virtual reality converge to create mind-blowing experiences.</p>
             <div className="socials">
               {SOCIALS.map(({ label, icon: Icon }) => (
-                <LiquidGlass key={label} as="a" href="#home" aria-label={label} className="social"><Icon width={16} height={16} /></LiquidGlass>
+                <LiquidGlass key={label} as="a" href="#home" aria-label={label} refract className="social"><Icon width={16} height={16} /></LiquidGlass>
               ))}
             </div>
           </div>

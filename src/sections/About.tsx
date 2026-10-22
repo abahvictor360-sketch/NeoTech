@@ -12,7 +12,7 @@ export function About({ onWatch }: { onWatch: () => void }) {
         <p className="eyebrow eyebrow--spaced" data-reveal>About us</p>
         <h2 className="h2" data-reveal>The Digital<br />Frontier</h2>
         <div className="tags" data-reveal>
-          {['Digital', 'Reality', 'Next'].map((t) => <LiquidGlass key={t} as="span" className="tag">{t}</LiquidGlass>)}
+          {['Digital', 'Reality', 'Next'].map((t) => <LiquidGlass key={t} as="span" refract className="tag">{t}</LiquidGlass>)}
         </div>
         <p className="muted" data-reveal>
           Step into The Digital Frontier, where the boundaries between reality and virtual innovation disappear.
