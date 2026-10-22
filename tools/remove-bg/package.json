@@ -1,0 +1,9 @@
+{
+  "name": "neotech-remove-bg",
+  "private": true,
+  "type": "module",
+  "description": "Strips image backgrounds locally. Usage: npm i && node remove-bg.mjs <outDir> <images...>",
+  "dependencies": {
+    "@imgly/background-removal-node": "^1.4.5"
+  }
+}

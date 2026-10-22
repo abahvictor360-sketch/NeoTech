@@ -1,0 +1,6 @@
+node_modules
+dist
+.vercel
+tools/remove-bg/node_modules
+tools/remove-bg/out
+*.log
