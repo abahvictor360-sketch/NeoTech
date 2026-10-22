@@ -184,6 +184,106 @@ function FlyingCar() {
   )
 }
 
+/** Soft radial glow texture, generated once and shared by every cut-out halo. */
+let glowTexture: THREE.CanvasTexture | null = null
+function getGlowTexture() {
+  if (glowTexture) return glowTexture
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const ctx = c.getContext('2d')!
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
+  g.addColorStop(0, 'rgba(255,255,255,1)')
+  g.addColorStop(0.35, 'rgba(255,255,255,0.35)')
+  g.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 128, 128)
+  glowTexture = new THREE.CanvasTexture(c)
+  return glowTexture
+}
+
+type CutoutDef = {
+  url: string
+  /** scroll-progress window in which it flies past */
+  window: [number, number]
+  /** -1 = left screen edge, 1 = right screen edge */
+  side: -1 | 1
+  height: number
+  glow: string
+  /** radians per second of in-plane spin (the sphere turns, the rest just sway) */
+  spin?: number
+}
+
+const CUTOUTS: CutoutDef[] = [
+  { url: '/images/sphere-cut.webp', window: [0.18, 0.44], side: 1, height: 3.2, glow: '#9b7bff', spin: 0.12 },
+  { url: '/images/robot-hands-cut.webp', window: [0.46, 0.72], side: -1, height: 3.4, glow: '#7c5cff' },
+  { url: '/images/vision-blue-cut.webp', window: [0.74, 1.0], side: 1, height: 3, glow: '#38e1ff' },
+]
+
+const tmp = new THREE.Vector3()
+
+/**
+ * A background-removed product shot that flies past along a screen edge.
+ * It is placed in camera space each frame, so it stays in the side margin
+ * (clear of the page copy) whatever the camera is doing, travelling from far
+ * and small to near and large across its scroll window, then fading out.
+ */
+function Cutout({ url, window: [p0, p1], side, height, glow, spin = 0 }: CutoutDef) {
+  const tex = useTexture(url)
+  tex.colorSpace = THREE.SRGBColorSpace
+  const group = useRef<THREE.Group>(null)
+  const art = useRef<THREE.Mesh>(null)
+  const halo = useRef<THREE.Mesh>(null)
+  const img = tex.image as HTMLImageElement | undefined
+  const aspect = img ? img.width / img.height : 0.6
+  const peak = isSmallScreen ? 0.45 : isBelowDesktop ? 0.6 : 0.95
+
+  useFrame((state) => {
+    const g = group.current
+    if (!g || !art.current || !halo.current) return
+    const cam = state.camera as THREE.PerspectiveCamera
+    // the rig's smoothed progress, recovered from the camera's travel
+    const progress = (6 - cam.position.z) / WORLD_DEPTH
+    const local = (progress - p0) / (p1 - p0)
+    const opacity = local <= 0 || local >= 1 ? 0 : Math.sin(local * Math.PI) ** 0.8 * peak
+    g.visible = opacity > 0.002
+    if (!g.visible) return
+
+    const t = state.clock.elapsedTime
+    const depth = THREE.MathUtils.lerp(16, 4.6, local)
+    const halfH = depth * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2))
+    // phones have no side margin, so there it only peeks in from the edge
+    const ndcX = side * (isSmallScreen ? 0.98 : 0.9)
+    const ndcY = THREE.MathUtils.lerp(-0.3, 0.2, local) + Math.sin(t * 0.8 + p0 * 10) * 0.03
+    tmp.set(ndcX * halfH * cam.aspect, ndcY * halfH, -depth)
+    g.position.copy(cam.localToWorld(tmp))
+    g.quaternion.copy(cam.quaternion)
+    art.current.rotation.z = spin ? t * spin : Math.sin(t * 0.5 + p0 * 10) * 0.05
+    ;(art.current.material as THREE.MeshBasicMaterial).opacity = opacity
+    ;(halo.current.material as THREE.MeshBasicMaterial).opacity = opacity * 0.5
+  })
+
+  return (
+    <group ref={group} visible={false}>
+      <mesh ref={halo} position-z={-0.3} scale={height * 1.6}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial map={getGlowTexture()} color={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} fog={false} />
+      </mesh>
+      <mesh ref={art}>
+        <planeGeometry args={[height * aspect, height]} />
+        <meshBasicMaterial map={tex} transparent depthWrite={false} toneMapped={false} fog={false} />
+      </mesh>
+    </group>
+  )
+}
+
+function Cutouts() {
+  return (
+    <>
+      {CUTOUTS.map((c) => <Cutout key={c.url} {...c} />)}
+    </>
+  )
+}
+
 function Lights() {
   return (
     <Environment resolution={256} frames={1}>
@@ -239,6 +339,7 @@ export default function ScrollWorld() {
           <Lights />
           <GlassShards />
           <FlyingCar />
+          <Cutouts />
         </Suspense>
       </Canvas>
     </div>
