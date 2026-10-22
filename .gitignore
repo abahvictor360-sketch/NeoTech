@@ -4,3 +4,4 @@ dist
 tools/remove-bg/node_modules
 tools/remove-bg/out
 *.log
+*.tsbuildinfo
