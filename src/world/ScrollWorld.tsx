@@ -72,7 +72,7 @@ function Gates() {
         <group key={g.z} position={[0, 0, g.z]}>
           <mesh>
             <torusGeometry args={[g.r, 0.012, 8, 160]} />
-            <meshBasicMaterial color={g.color} toneMapped={false} transparent opacity={0.85} />
+            <meshBasicMaterial color={g.color} toneMapped={false} transparent opacity={0.6} />
           </mesh>
           <mesh scale={1.04}>
             <torusGeometry args={[g.r, 0.004, 6, 160, Math.PI * 0.6]} />
