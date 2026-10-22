@@ -313,7 +313,10 @@ function useWorldVisible() {
   return visible
 }
 
-const MAX_DPR = isSmallScreen ? 1.25 : 1.5
+// never render above the screen's own density (a fixed 1.5 overdraws 1x displays)
+const MAX_DPR = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, isSmallScreen ? 1.25 : 1.5)
+// ?capture renders at a fixed quality for frame-by-frame video recording
+const isCapture = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('capture')
 
 export default function ScrollWorld() {
   const visible = useWorldVisible()
@@ -326,10 +329,12 @@ export default function ScrollWorld() {
         camera={{ position: [0, 0, 6], fov: 55, near: 0.1, far: 120 }}
         gl={{ antialias: !isSmallScreen, powerPreference: 'high-performance' }}
       >
-        <PerformanceMonitor
-          onDecline={() => setDpr((d) => Math.max(0.75, d - 0.25))}
-          onIncline={() => setDpr((d) => Math.min(MAX_DPR, d + 0.25))}
-        />
+        {!isCapture && (
+          <PerformanceMonitor
+            onDecline={() => setDpr((d) => Math.max(0.75, d - 0.25))}
+            onIncline={() => setDpr((d) => Math.min(MAX_DPR, d + 0.25))}
+          />
+        )}
         <color attach="background" args={[BG]} />
         <fog attach="fog" args={[BG, 10, 42]} />
         <Rig />
