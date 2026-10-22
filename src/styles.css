@@ -463,22 +463,22 @@ main, .footer { position: relative; z-index: 1; }
 .poss__tabs button.is-active { color: var(--ink); transform: translateX(6px); }
 .poss__media {
   position: relative;
-  aspect-ratio: 16 / 8;
+  aspect-ratio: 16 / 9;
   border-radius: 14px;
   overflow: hidden;
   background: #111;
 }
-.poss__media img {
+.poss__slide {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   opacity: 0;
-  transform: scale(1.08);
+  transform: scale(1.06);
   transition: opacity 0.9s var(--ease), transform 6s linear;
 }
-.poss__media img.is-active { opacity: 1; transform: scale(1); }
+.poss__slide.is-active { opacity: 1; transform: scale(1); }
+.poss__slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.poss__slide--contain img:not(.poss__fill) { object-fit: contain; transform: scale(1.4); }
+.poss__fill { filter: blur(28px) brightness(0.55) saturate(1.2); transform: scale(1.2); }
 .poss__article { animation: fadeUp 0.7s var(--ease) both; }
 .poss__article h3 { margin: 0 0 16px; font-size: clamp(17px, 1.6vw, 21px); font-weight: 500; line-height: 1.35; }
 .poss__article .muted { font-size: 12.5px; margin: 0 0 20px; }
@@ -551,6 +551,7 @@ main, .footer { position: relative; z-index: 1; }
   height: 100%;
   object-fit: cover;
   z-index: -1;
+  object-position: 50% 22%;
   filter: saturate(0.8) brightness(0.85);
   transform: scale(1.05);
   transition: transform 2s var(--ease);

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 
 const TABS = [
-  { key: 'Innovation', img: '/images/sphere.webp', title: 'How VR is Transforming Our Digital World', text: 'Virtual Reality (VR) is no longer a concept of the future — it’s actively reshaping how we interact, work, and entertain ourselves.', date: '05 February 2026', author: 'Henry Leonardo' },
-  { key: 'Technology', img: '/images/ring-dark.webp', title: 'The Future Is On Your Finger', text: 'Heart-rate, sleep, NFC payments and biometric identity, packed into a titanium ring that disappears into your day.', date: '18 March 2026', author: 'Amara Okafor' },
-  { key: 'Experience', img: '/images/ar-glasses.webp', title: 'Augmented Reality, Everyday', text: 'Lightweight AR glasses layer live information over the world around you — directions, translation and data at a glance.', date: '02 May 2026', author: 'Kenji Watanabe' },
+  { key: 'Innovation', img: '/images/sphere.webp', fit: 'contain', title: 'How VR is Transforming Our Digital World', text: 'Virtual Reality (VR) is no longer a concept of the future — it’s actively reshaping how we interact, work, and entertain ourselves.', date: '05 February 2026', author: 'Henry Leonardo' },
+  { key: 'Technology', img: '/images/ring-dark.webp', fit: 'contain', title: 'The Future Is On Your Finger', text: 'Heart-rate, sleep, NFC payments and biometric identity, packed into a titanium ring that disappears into your day.', date: '18 March 2026', author: 'Amara Okafor' },
+  { key: 'Experience', img: '/images/ar-glasses.webp', fit: 'cover', title: 'Augmented Reality, Everyday', text: 'Lightweight AR glasses layer live information over the world around you — directions, translation and data at a glance.', date: '02 May 2026', author: 'Kenji Watanabe' },
 ]
 
 export function Possibilities() {
@@ -29,8 +29,12 @@ export function Possibilities() {
           ))}
         </div>
         <div className="poss__media">
+          {/* Portrait shots are shown whole over a blurred copy of themselves instead of being cropped to a strip. */}
           {TABS.map((t, i) => (
-            <img key={t.key} src={t.img} alt={t.title} className={i === active ? 'is-active' : ''} loading="lazy" />
+            <div key={t.key} className={`poss__slide poss__slide--${t.fit} ${i === active ? 'is-active' : ''}`}>
+              {t.fit === 'contain' && <img src={t.img} alt="" aria-hidden="true" className="poss__fill" loading="lazy" />}
+              <img src={t.img} alt={t.title} loading="lazy" />
+            </div>
           ))}
         </div>
         <article className="poss__article" key={tab.key} role="tabpanel">
